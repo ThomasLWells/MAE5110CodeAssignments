@@ -1,28 +1,21 @@
-import numpy as np
+import matplotlib.pyplot as plt
 
-def make_params(N=8, l=1.0, g=9.81, gamma=0.0):
-    return dict(N=N, l=l, g=g, gamma=gamma, alpha=np.pi / N)
+from models import rimless_wheel as model
+from assignment_1_plot_RoA import plot_regions_of_attraction
+from assignment_1_plot_return_map import find_fixed_point, plot_return_map
 
-def continuous_dynamics(t, state, params):
-    """Stance-phase pendulum dynamics: theta_ddot = (g/l) sin(theta)."""
-    theta, thetadot = state
-    g, l = params['g'], params['l']
-    thetaddot = (g / l) * np.sin(theta)
-    return np.array([thetadot, thetaddot])
 
-def guard(t, state, params):
-    """Zero-crossing: fires when theta reaches gamma + alpha (rolling forward)."""
-    theta, thetadot = state
-    gamma, alpha = params['gamma'], params['alpha']
-    return theta - (gamma + alpha)
+if __name__ == "__main__":
+    params = model.generate_params()
 
-guard.terminal = True
-guard.direction = 1   # only trigger on the increasing crossing (theta rising into it)
+    fixed_point = find_fixed_point(params)
 
-def reset(state, params):
-    """Instantaneous switch to the next spoke: coordinate shift + momentum-conserving velocity update."""
-    theta, thetadot = state
-    alpha = params['alpha']
-    theta_new = theta - 2 * alpha
-    thetadot_new = thetadot * np.cos(2 * alpha)
-    return np.array([theta_new, thetadot_new])
+    print(f"N = {params['n_spokes']} spokes, slope = {params['slope']} rad")
+
+    # regions of attraction plot
+    figure, label = plot_regions_of_attraction(params)
+
+    # step-to-step return map plot
+    figure, fixed_point, rolling_exists = plot_return_map(params)
+
+    plt.show()
