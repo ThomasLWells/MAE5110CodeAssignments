@@ -15,7 +15,8 @@ def dynamics(t, state, params):
     state_derivative = np.array([linear_velocity, linear_acceleration])
     return state_derivative
 
-def bounce(state, params):
+def apply_reset(state, params):
+    """Reverse and damp the velocity when the ball reaches the ground."""
     ground = params["ground"]
     cor = params["cor"]
 
